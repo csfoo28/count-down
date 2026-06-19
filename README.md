@@ -1,2 +1,2 @@
 # count-down
-Just a count down website
+Just a count down timer website
