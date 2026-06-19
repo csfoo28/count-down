@@ -3,7 +3,31 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <title>Countdown</title>
+    <title>Countdown — Track What Matters</title>
+    <meta name="description" content="A beautiful countdown timer to track your most important events. Add multiple countdowns, switch themes, and install as a PWA." />
+    <meta name="robots" content="index, follow" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Countdown — Track What Matters" />
+    <meta property="og:description" content="A beautiful countdown timer to track your most important events. Add multiple countdowns, switch themes, and install as a PWA." />
+    <meta property="og:image" content="assets/android-chrome-512x512.png" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Countdown — Track What Matters" />
+    <meta name="twitter:description" content="A beautiful countdown timer to track your most important events. Add multiple countdowns, switch themes, and install as a PWA." />
+    <meta name="twitter:image" content="assets/android-chrome-512x512.png" />
+
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#8b6df0" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Countdown" />
+    <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16x16.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -1621,6 +1645,10 @@
       }
 
       document.addEventListener("DOMContentLoaded", init);
+
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js'));
+      }
     </script>
   </body>
 </html>

@@ -1,0 +1,17 @@
+{
+  "name": "Countdown Timer",
+  "short_name": "Countdown",
+  "description": "A beautiful countdown timer with multiple visual styles",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#0c0c10",
+  "theme_color": "#8b6df0",
+  "icons": [
+    {
+      "src": "icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
