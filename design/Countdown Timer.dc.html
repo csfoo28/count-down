@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  :root{--bg:#0c0c10;--fg:#f6f6f8;--muted:#83838e;--card:#16161d;--line:#272730;--accent:#8b6df0;--accent-2:#7c5cd9;--accent-soft:rgba(124,92,217,0.16);--sand:#d2af6e;}
+  [data-theme="light"]{--bg:#f2f1ed;--fg:#161620;--muted:#6e6e79;--card:#ffffff;--line:#e3e1da;--accent:#7c5cd9;--accent-2:#6a4fc9;--accent-soft:rgba(124,92,217,0.12);--sand:#c79f5d;}
+  @keyframes flashbg{0%,100%{background-color:rgba(124,92,217,0.10);}50%{background-color:rgba(124,92,217,0.40);}}
+  @keyframes pulseNum{0%,100%{transform:scale(1);}50%{transform:scale(1.07);}}
+  @keyframes sandfall{0%{transform:translateY(-6px) scaleY(.6);opacity:.25;}50%{opacity:1;}100%{transform:translateY(10px) scaleY(1);opacity:.25;}}
+  @keyframes popIn{0%{transform:scale(.92);opacity:0;}100%{transform:scale(1);opacity:1;}}
+  input[type=number]{-moz-appearance:textfield;}
+  input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+</style>
+</helmet>
+<div ref="{{ rootRef }}" data-theme="{{ theme }}" style="min-height:100vh;background:var(--bg);color:var(--fg);font-family:'Space Grotesk',system-ui,-apple-system,sans-serif;display:flex;flex-direction:column;transition:background-color .35s ease,color .35s ease;">
+
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:22px 30px;">
+    <div style="display:flex;align-items:center;gap:11px;">
+      <div style="width:11px;height:11px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 4px var(--accent-soft);"></div>
+      <span style="font-size:13px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:var(--muted);">Countdown</span>
+    </div>
+    <button onClick="{{ toggleTheme }}" style-hover="border-color:var(--accent);color:var(--fg);" style="background:var(--card);border:1px solid var(--line);color:var(--muted);padding:9px 16px;border-radius:10px;font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:.2s;">{{ themeLabel }}</button>
+  </div>
+
+  <sc-if value="{{ isSetup }}" hint-placeholder-val="{{ true }}">
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 24px 70px;">
+      <div style="width:100%;max-width:660px;">
+        <h1 style="font-size:clamp(36px,6.5vw,60px);font-weight:700;letter-spacing:-.03em;margin:0 0 8px;line-height:1;">Set your timer</h1>
+        <p style="margin:0 0 34px;color:var(--muted);font-size:17px;">Tap a preset to start instantly, or dial in your own — up to 24 hours.</p>
+
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:36px;">
+          <sc-for list="{{ quickPicks }}" as="qp" hint-placeholder-count="10">
+            <button onClick="{{ qp.onClick }}" style-hover="border-color:var(--accent);color:var(--accent);transform:translateY(-2px);" style="background:var(--card);border:1px solid var(--line);color:var(--fg);padding:18px 0;border-radius:14px;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:19px;cursor:pointer;transition:.18s;">{{ qp.label }}</button>
+          </sc-for>
+        </div>
+
+        <div style="background:var(--card);border:1px solid var(--line);border-radius:20px;padding:24px 26px;margin-bottom:34px;">
+          <div style="font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:18px;font-weight:600;">Custom duration</div>
+          <div style="display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap;">
+            <div style="display:flex;flex-direction:column;gap:7px;">
+              <label style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.12em;font-weight:600;">Hours</label>
+              <input type="number" min="0" max="24" value="{{ customH }}" onChange="{{ onH }}" style="width:92px;background:var(--bg);border:1px solid var(--line);color:var(--fg);font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:700;padding:11px 6px;border-radius:13px;text-align:center;outline:none;"/>
+            </div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:30px;font-weight:700;color:var(--muted);padding-bottom:9px;">:</div>
+            <div style="display:flex;flex-direction:column;gap:7px;">
+              <label style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.12em;font-weight:600;">Minutes</label>
+              <input type="number" min="0" max="59" value="{{ customM }}" onChange="{{ onM }}" style="width:92px;background:var(--bg);border:1px solid var(--line);color:var(--fg);font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:700;padding:11px 6px;border-radius:13px;text-align:center;outline:none;"/>
+            </div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:30px;font-weight:700;color:var(--muted);padding-bottom:9px;">:</div>
+            <div style="display:flex;flex-direction:column;gap:7px;">
+              <label style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.12em;font-weight:600;">Seconds</label>
+              <input type="number" min="0" max="59" value="{{ customS }}" onChange="{{ onS }}" style="width:92px;background:var(--bg);border:1px solid var(--line);color:var(--fg);font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:700;padding:11px 6px;border-radius:13px;text-align:center;outline:none;"/>
+            </div>
+            <button onClick="{{ startCustom }}" style-hover="background:var(--accent-2);" style="margin-left:auto;background:var(--accent);color:#fff;border:none;padding:15px 30px;border-radius:13px;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:16px;cursor:pointer;transition:.18s;">Start</button>
+          </div>
+        </div>
+
+        <div>
+          <div style="font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;font-weight:600;">Visual style</div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <sc-for list="{{ styleOpts }}" as="so" hint-placeholder-count="6">
+              <button onClick="{{ so.onClick }}" style="display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border-radius:999px;border:1px solid {{ so.bc }};background:{{ so.bg }};color:{{ so.fg }};font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:.18s;">{{ so.label }}</button>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isTimer }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:6px 24px 40px;position:relative;">
+
+      <div style="flex:1;display:flex;align-items:center;justify-content:center;width:100%;min-height:420px;">
+
+        <sc-if value="{{ isDigital }}" hint-placeholder-val="{{ true }}">
+          <div style="text-align:center;">
+            <div style="font-family:'JetBrains Mono',monospace;font-weight:800;line-height:.95;font-size:clamp(76px,21vw,210px);letter-spacing:-.03em;color:{{ digitColor }};animation:{{ digitAnim }};">{{ mainStr }}</div>
+            <sc-if value="{{ showCenti }}" hint-placeholder-val="{{ false }}">
+              <div style="font-family:'JetBrains Mono',monospace;font-size:clamp(30px,7vw,58px);font-weight:700;color:var(--accent);margin-top:8px;">.{{ centiStr }}</div>
+            </sc-if>
+            <div style="margin-top:18px;color:var(--muted);font-size:14px;letter-spacing:.22em;text-transform:uppercase;font-weight:600;">{{ statusLabel }}</div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isAnalog }}" hint-placeholder-val="{{ false }}">
+          <div style="text-align:center;">
+            <div style="position:relative;width:320px;height:320px;margin:0 auto;">
+              <div style="position:absolute;inset:16px;border-radius:50%;background:conic-gradient(var(--accent) 0deg, var(--accent) {{ analogDeg }}deg, var(--accent-soft) {{ analogDeg }}deg 360deg);"></div>
+              <div style="position:absolute;inset:0;border-radius:50%;border:2px solid var(--line);"></div>
+              <sc-for list="{{ ticks }}" as="t" hint-placeholder-count="12">
+                <div style="position:absolute;top:9px;left:50%;width:3px;height:14px;margin-left:-1.5px;background:var(--muted);transform-origin:50% 151px;transform:rotate({{ t.deg }}deg);border-radius:2px;"></div>
+              </sc-for>
+              <div style="position:absolute;left:50%;top:48px;width:6px;height:112px;margin-left:-3px;background:var(--fg);border-radius:6px;transform-origin:50% 100%;transform:rotate({{ analogDeg }}deg);box-shadow:0 2px 8px rgba(0,0,0,.25);"></div>
+              <div style="position:absolute;left:50%;top:50%;width:18px;height:18px;margin:-9px 0 0 -9px;border-radius:50%;background:var(--accent);border:3px solid var(--bg);"></div>
+            </div>
+            <div style="margin-top:26px;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:34px;letter-spacing:-.01em;">{{ mainStr }}</div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isHourglass }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;align-items:center;">
+            <div style="width:168px;height:12px;background:var(--line);border-radius:7px;"></div>
+            <div style="position:relative;width:168px;height:128px;clip-path:polygon(3% 0,97% 0,53% 100%,47% 100%);background:var(--accent-soft);overflow:hidden;">
+              <div style="position:absolute;left:0;right:0;bottom:0;height:{{ topH }}%;background:var(--sand);"></div>
+            </div>
+            <div style="position:relative;width:8px;height:14px;display:flex;justify-content:center;">
+              <sc-if value="{{ isRunning }}" hint-placeholder-val="{{ false }}">
+                <div style="width:3px;height:16px;background:var(--sand);border-radius:2px;animation:sandfall .7s ease-in-out infinite;"></div>
+              </sc-if>
+            </div>
+            <div style="position:relative;width:168px;height:128px;clip-path:polygon(47% 0,53% 0,97% 100%,3% 100%);background:var(--accent-soft);overflow:hidden;">
+              <div style="position:absolute;left:0;right:0;bottom:0;height:{{ botH }}%;background:var(--sand);"></div>
+            </div>
+            <div style="width:168px;height:12px;background:var(--line);border-radius:7px;"></div>
+            <div style="margin-top:20px;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:30px;letter-spacing:-.01em;">{{ mainStr }}</div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isBar }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;align-items:center;gap:34px;">
+            <div style="position:relative;width:120px;height:340px;border:2px solid var(--line);border-radius:20px;overflow:hidden;background:var(--card);">
+              <div style="position:absolute;left:0;right:0;bottom:0;height:{{ barH }}%;background:linear-gradient(180deg,var(--accent),var(--accent-2));"></div>
+            </div>
+            <div style="text-align:left;">
+              <div style="font-family:'JetBrains Mono',monospace;font-weight:800;font-size:clamp(48px,10vw,84px);line-height:.95;letter-spacing:-.02em;color:{{ digitColor }};">{{ mainStr }}</div>
+              <div style="margin-top:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.2em;font-size:13px;font-weight:600;">{{ pctStr }} remaining</div>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isFlip }}" hint-placeholder-val="{{ false }}">
+          <div style="text-align:center;">
+            <div style="display:flex;align-items:center;justify-content:center;gap:8px;">
+              <sc-for list="{{ flipCells }}" as="c" hint-placeholder-count="5">
+                <sc-if value="{{ c.isColon }}" hint-placeholder-val="{{ false }}">
+                  <div style="font-family:'JetBrains Mono',monospace;font-weight:800;font-size:clamp(44px,11vw,80px);color:var(--accent);padding:0 1px;">:</div>
+                </sc-if>
+                <sc-if value="{{ c.isCard }}" hint-placeholder-val="{{ true }}">
+                  <div style="position:relative;width:clamp(62px,15vw,106px);height:clamp(94px,22vw,148px);border-radius:13px;background:linear-gradient(var(--card) 0 50%, color-mix(in srgb, var(--card) 82%, #000) 50% 100%);box-shadow:0 10px 26px rgba(0,0,0,.32);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-weight:800;font-size:clamp(56px,13vw,102px);color:var(--fg);">
+                    {{ c.d }}
+                    <div style="position:absolute;left:0;right:0;top:50%;height:2px;background:var(--bg);transform:translateY(-1px);"></div>
+                  </div>
+                </sc-if>
+              </sc-for>
+            </div>
+            <div style="margin-top:20px;color:var(--muted);font-size:14px;letter-spacing:.22em;text-transform:uppercase;font-weight:600;">{{ statusLabel }}</div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ isRing }}" hint-placeholder-val="{{ false }}">
+          <div style="position:relative;width:330px;height:330px;">
+            <svg width="330" height="330" viewBox="0 0 330 330" style="display:block;">
+              <circle cx="165" cy="165" r="146" fill="none" stroke="var(--accent-soft)" stroke-width="20"></circle>
+              <circle cx="165" cy="165" r="146" fill="none" stroke="var(--accent)" stroke-width="20" stroke-linecap="round" stroke-dasharray="{{ ringCirc }}" stroke-dashoffset="{{ ringOffset }}" transform="rotate(-90 165 165)"></circle>
+            </svg>
+            <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+              <div style="font-family:'JetBrains Mono',monospace;font-weight:800;font-size:clamp(40px,9vw,66px);line-height:1;letter-spacing:-.02em;color:{{ digitColor }};">{{ mainStr }}</div>
+              <div style="margin-top:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.22em;font-size:12px;font-weight:600;">{{ pctStr }}</div>
+            </div>
+          </div>
+        </sc-if>
+
+      </div>
+
+      <div style="display:flex;gap:13px;align-items:center;margin-top:18px;flex-wrap:wrap;justify-content:center;">
+        <button onClick="{{ playToggle }}" style-hover="background:var(--accent-2);" style="background:var(--accent);color:#fff;border:none;padding:14px 34px;border-radius:13px;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:16px;cursor:pointer;transition:.18s;min-width:130px;">{{ playLabel }}</button>
+        <button onClick="{{ restart }}" style-hover="border-color:var(--accent);color:var(--fg);" style="background:var(--card);color:var(--muted);border:1px solid var(--line);padding:14px 24px;border-radius:13px;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:16px;cursor:pointer;transition:.18s;">Restart</button>
+        <button onClick="{{ reset }}" style-hover="border-color:var(--accent);color:var(--fg);" style="background:var(--card);color:var(--muted);border:1px solid var(--line);padding:14px 24px;border-radius:13px;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:16px;cursor:pointer;transition:.18s;">New timer</button>
+        <button onClick="{{ toggleMute }}" style-hover="border-color:var(--accent);color:var(--fg);" style="background:var(--card);color:var(--muted);border:1px solid var(--line);padding:14px 20px;border-radius:13px;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:16px;cursor:pointer;transition:.18s;">{{ muteLabel }}</button>
+      </div>
+
+      <div style="display:flex;gap:9px;flex-wrap:wrap;justify-content:center;margin-top:24px;">
+        <sc-for list="{{ styleOpts }}" as="so" hint-placeholder-count="6">
+          <button onClick="{{ so.onClick }}" style="padding:9px 15px;border-radius:999px;border:1px solid {{ so.bc }};background:{{ so.bg }};color:{{ so.fg }};font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:.18s;">{{ so.label }}</button>
+        </sc-for>
+      </div>
+
+      <sc-if value="{{ isDone }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:30px;animation:flashbg 1s ease-in-out infinite;backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);">
+          <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(52px,12vw,116px);letter-spacing:-.03em;color:var(--fg);text-transform:uppercase;line-height:1;animation:popIn .4s ease;text-align:center;">Time's up</div>
+          <div style="display:flex;gap:14px;flex-wrap:wrap;justify-content:center;">
+            <button onClick="{{ restart }}" style="background:var(--accent);color:#fff;border:none;padding:15px 32px;border-radius:13px;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:16px;cursor:pointer;">Restart</button>
+            <button onClick="{{ reset }}" style="background:var(--card);color:var(--fg);border:1px solid var(--line);padding:15px 28px;border-radius:13px;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:16px;cursor:pointer;">New timer</button>
+            <button onClick="{{ stopAlarm }}" style="background:transparent;color:var(--fg);border:1px solid var(--fg);padding:15px 28px;border-radius:13px;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:16px;cursor:pointer;">Stop sound</button>
+          </div>
+        </div>
+      </sc-if>
+
+    </div>
+  </sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;accentColor&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#7c5cd9&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;defaultStyle&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;digital&quot;,&quot;analog&quot;,&quot;hourglass&quot;,&quot;bar&quot;,&quot;flip&quot;,&quot;ring&quot;],&quot;default&quot;:&quot;digital&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;soundEnabled&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;}}">
+class Component extends DCLogic {
+  state = {
+    theme: 'dark',
+    style: 'digital',
+    view: 'setup',
+    status: 'idle',        // idle | running | paused | done
+    totalMs: 5 * 60 * 1000,
+    remainingMs: 5 * 60 * 1000,
+    customH: 0,
+    customM: 5,
+    customS: 0,
+    muted: false,
+  };
+
+  componentDidMount() {
+    this._mounted = true;
+    const p = this.props || {};
+    const patch = {};
+    if (p.defaultStyle) patch.style = p.defaultStyle;
+    if (Object.keys(patch).length) this.setState(patch);
+    this.applyAccent();
+    this._onKey = (e) => {
+      if (this.state.view !== 'timer') return;
+      if (e.code === 'Space') { e.preventDefault(); this.playToggle(); }
+      else if (e.code === 'Escape') { this.reset(); }
+    };
+    window.addEventListener('keydown', this._onKey);
+  }
+
+  componentDidUpdate() { this.applyAccent(); }
+
+  componentWillUnmount() {
+    this._mounted = false;
+    cancelAnimationFrame(this._raf);
+    this.stopBeep();
+    window.removeEventListener('keydown', this._onKey);
+  }
+
+  applyAccent() {
+    const c = this.props && this.props.accentColor;
+    if (c && this._root && c !== this._lastAccent) {
+      this._lastAccent = c;
+      this._root.style.setProperty('--accent', c);
+      this._root.style.setProperty('--accent-2', c);
+      this._root.style.setProperty('--accent-soft', `color-mix(in srgb, ${c} 16%, transparent)`);
+    }
+  }
+
+  // ---- audio ----
+  ensureAudio() {
+    if (!this._ac) {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (AC) this._ac = new AC();
+    }
+    if (this._ac && this._ac.state === 'suspended') this._ac.resume();
+    return this._ac;
+  }
+  beep() {
+    const soundOn = !(this.props && this.props.soundEnabled === false);
+    if (this.state.muted || !soundOn) return;
+    const ac = this.ensureAudio();
+    if (!ac) return;
+    const o = ac.createOscillator();
+    const g = ac.createGain();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(880, ac.currentTime);
+    o.frequency.setValueAtTime(660, ac.currentTime + 0.16);
+    g.gain.setValueAtTime(0.0001, ac.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.3, ac.currentTime + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + 0.45);
+    o.connect(g); g.connect(ac.destination);
+    o.start(); o.stop(ac.currentTime + 0.47);
+  }
+  fireAlarm() {
+    this.beep();
+    let n = 0;
+    this._beepTimer = setInterval(() => {
+      n++;
+      if (n >= 12 || !this._mounted) { this.stopBeep(); return; }
+      this.beep();
+    }, 750);
+  }
+  stopBeep() { if (this._beepTimer) { clearInterval(this._beepTimer); this._beepTimer = null; } }
+  stopAlarm = () => { this.stopBeep(); }
+
+  // ---- timer engine ----
+  loop = () => {
+    if (!this._mounted) return;
+    const rem = this._endAt - performance.now();
+    if (rem <= 0) {
+      this.setState({ remainingMs: 0, status: 'done' });
+      this.fireAlarm();
+      return;
+    }
+    this.setState({ remainingMs: rem });
+    this._raf = requestAnimationFrame(this.loop);
+  };
+
+  startWith(ms) {
+    if (!ms || ms <= 0) return;
+    ms = Math.min(ms, 86400000);
+    this.ensureAudio();
+    this.stopBeep();
+    cancelAnimationFrame(this._raf);
+    this._endAt = performance.now() + ms;
+    this.setState({ totalMs: ms, remainingMs: ms, view: 'timer', status: 'running' }, () => this.loop());
+  }
+
+  startCustom = () => {
+    const { customH, customM, customS } = this.state;
+    const ms = ((customH * 3600) + (customM * 60) + customS) * 1000;
+    this.startWith(ms);
+  }
+
+  playToggle = () => {
+    if (this.state.status === 'running') {
+      cancelAnimationFrame(this._raf);
+      this._pausedRem = Math.max(0, this._endAt - performance.now());
+      this.setState({ status: 'paused', remainingMs: this._pausedRem });
+    } else if (this.state.status === 'paused') {
+      this._endAt = performance.now() + this._pausedRem;
+      this.setState({ status: 'running' }, () => this.loop());
+    }
+  }
+
+  restart = () => {
+    this.stopBeep();
+    this.startWith(this.state.totalMs);
+  }
+
+  reset = () => {
+    cancelAnimationFrame(this._raf);
+    this.stopBeep();
+    this.setState({ view: 'setup', status: 'idle', remainingMs: this.state.totalMs });
+  }
+
+  toggleTheme = () => this.setState(s => ({ theme: s.theme === 'dark' ? 'light' : 'dark' }));
+  toggleMute = () => this.setState(s => ({ muted: !s.muted }));
+
+  clampInt(v, lo, hi) { v = parseInt(v, 10); if (isNaN(v)) v = 0; return Math.max(lo, Math.min(hi, v)); }
+  onH = (e) => this.setState({ customH: this.clampInt(e.target.value, 0, 24) });
+  onM = (e) => this.setState({ customM: this.clampInt(e.target.value, 0, 59) });
+  onS = (e) => this.setState({ customS: this.clampInt(e.target.value, 0, 59) });
+
+  renderVals() {
+    const s = this.state;
+    const rem = Math.max(0, s.remainingMs);
+    const total = s.totalMs;
+    const frac = total > 0 ? Math.max(0, Math.min(1, rem / total)) : 0;
+    const h = Math.floor(rem / 3600000);
+    const m = Math.floor((rem % 3600000) / 60000);
+    const sec = Math.floor((rem % 60000) / 1000);
+    const cs = Math.floor((rem % 1000) / 10);
+    const pad = n => String(n).padStart(2, '0');
+    const showHours = total >= 3600000;
+    const showCenti = total < 60000 && total > 0;
+
+    const mainStr = showHours
+      ? `${pad(h)}:${pad(m)}:${pad(sec)}`
+      : `${pad(m)}:${pad(sec)}`;
+
+    const segs = showHours ? [pad(h), pad(m), pad(sec)] : [pad(m), pad(sec)];
+    const flipCells = [];
+    segs.forEach((seg, si) => {
+      if (si > 0) flipCells.push({ isColon: true, isCard: false, d: ':' });
+      seg.split('').forEach(ch => flipCells.push({ isCard: true, isColon: false, d: ch }));
+    });
+
+    const ringCirc = 2 * Math.PI * 146;
+    const urgent = s.status === 'running' && rem > 0 && rem <= 5000;
+
+    const styleDefs = [
+      { key: 'digital', label: 'Digital' },
+      { key: 'analog', label: 'Clock' },
+      { key: 'hourglass', label: 'Hourglass' },
+      { key: 'bar', label: 'Bar' },
+      { key: 'flip', label: 'Flip' },
+      { key: 'ring', label: 'Ring' },
+    ];
+    const styleOpts = styleDefs.map(d => {
+      const active = s.style === d.key;
+      return {
+        key: d.key, label: d.label,
+        onClick: () => this.setState({ style: d.key }),
+        bg: active ? 'var(--accent)' : 'var(--card)',
+        fg: active ? '#fff' : 'var(--fg)',
+        bc: active ? 'var(--accent)' : 'var(--line)',
+      };
+    });
+
+    const qpDefs = [
+      { label: '3s', ms: 3000 }, { label: '5s', ms: 5000 }, { label: '10s', ms: 10000 },
+      { label: '30s', ms: 30000 }, { label: '1 min', ms: 60000 }, { label: '3 min', ms: 180000 },
+      { label: '5 min', ms: 300000 }, { label: '10 min', ms: 600000 }, { label: '25 min', ms: 1500000 },
+      { label: '1 hr', ms: 3600000 },
+    ];
+    const quickPicks = qpDefs.map(q => ({ label: q.label, onClick: () => this.startWith(q.ms) }));
+
+    return {
+      rootRef: (el) => { this._root = el; },
+      theme: s.theme,
+      themeLabel: s.theme === 'dark' ? 'Light mode' : 'Dark mode',
+      muteLabel: s.muted ? 'Unmute' : 'Mute',
+      playLabel: s.status === 'running' ? 'Pause' : 'Resume',
+      statusLabel: s.status === 'paused' ? 'Paused' : (s.status === 'running' ? 'Counting down' : ''),
+
+      isSetup: s.view === 'setup',
+      isTimer: s.view === 'timer',
+      isRunning: s.status === 'running',
+      isDone: s.status === 'done',
+
+      isDigital: s.style === 'digital',
+      isAnalog: s.style === 'analog',
+      isHourglass: s.style === 'hourglass',
+      isBar: s.style === 'bar',
+      isFlip: s.style === 'flip',
+      isRing: s.style === 'ring',
+
+      mainStr,
+      centiStr: pad(cs),
+      showCenti,
+      pctStr: Math.round(frac * 100) + '%',
+      digitColor: urgent ? 'var(--accent)' : 'var(--fg)',
+      digitAnim: urgent ? 'pulseNum .7s ease-in-out infinite' : 'none',
+
+      analogDeg: frac * 360,
+      ticks: Array.from({ length: 12 }, (_, i) => ({ deg: i * 30 })),
+      ringCirc,
+      ringOffset: ringCirc * (1 - frac),
+      topH: frac * 100,
+      botH: (1 - frac) * 100,
+      barH: frac * 100,
+      flipCells,
+
+      quickPicks,
+      styleOpts,
+      customH: s.customH,
+      customM: s.customM,
+      customS: s.customS,
+      onH: this.onH, onM: this.onM, onS: this.onS,
+      startCustom: this.startCustom,
+      toggleTheme: this.toggleTheme,
+      toggleMute: this.toggleMute,
+      playToggle: this.playToggle,
+      restart: this.restart,
+      reset: this.reset,
+      stopAlarm: this.stopAlarm,
+    };
+  }
+}
+</script>
+</body>
+</html>
