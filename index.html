@@ -462,6 +462,26 @@
       #confetti { position: fixed; inset: 0; pointer-events: none; z-index: 98; overflow: hidden; }
       .cf { position: absolute; left: 0; top: 0; display: block; will-change: transform; }
 
+      /* ================= Support (Buy Me a Coffee) ================= */
+      .support-link {
+        display: inline-flex; align-items: center; gap: var(--s2); min-height: 44px; margin-top: var(--s6); padding: 0;
+        background: none; border: 0; color: var(--muted); font-size: 15px; text-decoration: underline; text-underline-offset: 3px;
+      }
+      .support-link svg { width: 18px; height: 18px; flex: none; }
+      @media (hover: hover) { .support-link:hover { color: var(--fg); } }
+      #support-dlg {
+        width: min(360px, calc(100vw - 32px)); padding: var(--s5); margin: auto;
+        background: var(--card); color: var(--fg); border: 1px solid var(--line); border-radius: var(--r-lg); box-shadow: var(--shadow);
+        text-align: center;
+      }
+      #support-dlg::backdrop { background: var(--scrim); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+      .support-title { margin: 0 0 var(--s2); font-size: 24px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.15; }
+      .support-sub { margin: 0 0 var(--s4); color: var(--muted); font-size: 15px; }
+      .support-qr { display: block; width: 100%; max-width: 240px; height: auto; margin: 0 auto var(--s4); padding: var(--s3); background: #fff; border-radius: var(--r); }
+      .support-btns { display: grid; gap: var(--s2); }
+      .btn-bmc { background: #ffdd00; color: #0d0c22; text-decoration: none; }
+      @media (hover: hover) { .btn-bmc:hover { background: #ffe433; } }
+
       /* ================= Responsive ================= */
       @media (max-width: 520px) {
         .app-header { padding: var(--s3) var(--s4); }
@@ -503,6 +523,11 @@
             </svg>
             <span>Screen on</span>
           </div>
+          <button class="icon-btn" id="support-btn" type="button" aria-label="Buy me a coffee" title="Buy me a coffee">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M17 8h1a4 4 0 0 1 0 8h-1" /><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4z" /><path d="M7 2v2M11 2v2M15 2v2" />
+            </svg>
+          </button>
           <button class="icon-btn" id="mute-btn" aria-label="Mute sound" title="Toggle sound (M)">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
@@ -565,6 +590,12 @@
                 <div class="label" id="style-label">Display style</div>
                 <div class="seg" id="setup-pills" role="group" aria-labelledby="style-label"></div>
               </div>
+              <button class="support-link" id="support-link" type="button" data-in>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M17 8h1a4 4 0 0 1 0 8h-1" /><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4z" />
+                </svg>
+                Enjoying Countdown? Buy me a coffee
+              </button>
             </div>
           </main>
 
@@ -609,6 +640,16 @@
         </div>
       </div>
     </div>
+
+    <dialog id="support-dlg" aria-labelledby="support-title">
+      <h2 class="support-title" id="support-title">Buy me a coffee</h2>
+      <p class="support-sub">Countdown is free with no ads. If it helps you, a coffee keeps it going.</p>
+      <img class="support-qr" src="assets/bmc-qr.png" width="700" height="700" alt="QR code linking to buymeacoffee.com/little.cafe" loading="lazy" />
+      <div class="support-btns">
+        <a class="btn btn-bmc" href="https://buymeacoffee.com/little.cafe" target="_blank" rel="noopener">Open Buy Me a Coffee</a>
+        <button class="btn btn-secondary" id="support-close" type="button">Close</button>
+      </div>
+    </dialog>
 
     <div id="vignette"></div>
     <div id="confetti" aria-hidden="true"></div>
@@ -1603,10 +1644,22 @@
         $("mute-btn").addEventListener("click", toggleMute);
         $("tick-btn").addEventListener("click", toggleTick);
 
+        // Support dialog
+        const supportDlg = $("support-dlg");
+        const openSupport = () => {
+          if (supportDlg.open) return;
+          if (supportDlg.showModal) supportDlg.showModal(); else window.open("https://buymeacoffee.com/little.cafe", "_blank", "noopener");
+          try { gtag("event", "support_open"); } catch {}
+        };
+        $("support-btn").addEventListener("click", openSupport);
+        $("support-link").addEventListener("click", openSupport);
+        $("support-close").addEventListener("click", () => supportDlg.close());
+        supportDlg.addEventListener("click", (e) => { if (e.target === supportDlg) supportDlg.close(); }); // backdrop click
+
         // Keyboard shortcuts
         document.addEventListener("keydown", (e) => {
           const tag = e.target.tagName;
-          if (tag === "INPUT") return;
+          if (tag === "INPUT" || supportDlg.open) return;
           if (doneCurrent) {
             if (e.code === "Escape") dismissDone();
             else if (e.key === "m" || e.key === "M") toggleMute();

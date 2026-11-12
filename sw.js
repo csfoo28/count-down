@@ -1,4 +1,4 @@
-const CACHE = 'countdown-v2';
+const CACHE = 'countdown-v3';
 const PRECACHE = [
   './',
   './index.html',
@@ -19,6 +19,7 @@ const PRECACHE = [
   './assets/apple-touch-icon.png',
   './assets/android-chrome-192x192.png',
   './assets/android-chrome-512x512.png',
+  './assets/bmc-qr.png',
   './icons/icon.svg'
 ];
 
